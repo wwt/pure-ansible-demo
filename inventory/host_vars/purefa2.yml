@@ -1,5 +1,5 @@
 ---
-purefa_api_token: 65690da2-9f93-9438-9c28-1a35e0c71e28
+purefa_api_token: 5d688888-dd21-0603-032b-79c98c70f1b0
 volumes:
   - volume_name: ansible_created_volume1
     volume_size: 1T
