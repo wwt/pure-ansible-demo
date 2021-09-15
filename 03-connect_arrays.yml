@@ -8,12 +8,19 @@
         pure_credentials: &pure_api_info
           fa_url: "{{ inventory_hostname }}"
           api_token: "{{ purefa_api_token }}"
-    - name: connect arrays for syncing
+
+    #- name: connect arrays for syncing
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_connect:
+    #    target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
+    #    target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
+    #    connection: async
+    #    <<: *pure_api_info
+    #  when: inventory_hostname == 'purefa1'
+
+    - name: ensure protection groups are created
       delegate_to: localhost
-      purestorage.flasharray.purefa_connect:
-        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
-        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
-        connection: async
+      purestorage.flasharray.purefa_pg:
+        pgroup: "{{ pg_name }}"
         <<: *pure_api_info
-      when: inventory_hostname == 'purefa1'
 
