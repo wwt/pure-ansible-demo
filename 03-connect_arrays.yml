@@ -23,3 +23,14 @@
       purestorage.flasharray.purefa_pg:
         pgroup: "{{ pg_name }}"
         <<: *pure_api_info
+      #loop: "{{ pg_name }}"
+
+    - name: add volume(s) to protection group 
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: "{{ item.volume_name }}"
+        pgroup: "{{ pg_name }}"
+        <<: *pure_api_info
+      loop: "{{ volumes }}"
+      when: inventory_hostname == 'purefa1'
+      
