@@ -1,7 +1,7 @@
 ---
 purefa_api_token: 22e8736e-ce95-83f2-1484-5101d95f92b3
 volumes:
-  - volume_name: ansible_created_volume1
+  - volume_name: sqlserver2019-db1
     volume_size: 1T
-  - volume_name: ansible_created_volume2
+  - volume_name: sqlserver2019-db2
     volume_size: 900G
