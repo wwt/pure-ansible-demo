@@ -8,6 +8,8 @@
         pure_credentials: &pure_api_info
           fa_url: "{{ inventory_hostname }}"
           api_token: "{{ purefa_api_token }}"
+      tags:
+        - configuration
 
     - name: connect arrays for syncing
       delegate_to: localhost
@@ -16,24 +18,43 @@
         target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
         connection: async
         <<: *pure_api_info
-      when: inventory_hostname == 'purefa1'
+      run_once: True
+      tags:
+        - configuration
 
     - name: ensure protection groups are created
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         pgroup: "{{ pg_name }}"
         <<: *pure_api_info
-      #loop: "{{ pg_name }}"
+      tags:
+        - configuration
 
     - name: create list of volumes to add to protection group
       set_fact:
         volume_list: "{{ volumes | map(attribute='volume_name') | list }}"
+      tags:
+        - configuration
 
-    - name: add volume(s) to protection group 
+    - name: add volume(s) to protection group and create target on purefa2
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         volume: "{{ volume_list }}"
         pgroup: "{{ pg_name }}"
         target: 'purefa2'
         <<: *pure_api_info
-      when: inventory_hostname == 'purefa1'
+      run_once: True
+      tags:
+        - configuration
+
+    - name: create pg snapshot and replicate to other array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pgsnap:
+        name: "{{ pg_name }}"
+        suffix: 'pg5'
+        #remote: True
+        #now: True
+        <<: *pure_api_info
+      run_once: True
+      tags:
+        - snapshot
