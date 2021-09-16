@@ -34,5 +34,6 @@
       purestorage.flasharray.purefa_pg:
         volume: "{{ volume_list }}"
         pgroup: "{{ pg_name }}"
+        target: 'purefa2'
         <<: *pure_api_info
       when: inventory_hostname == 'purefa1'
