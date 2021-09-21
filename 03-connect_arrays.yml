@@ -10,6 +10,7 @@
           api_token: "{{ purefa_api_token }}"
       tags:
         - configuration
+        - snapshot
 
     - name: connect arrays for syncing
       delegate_to: localhost
@@ -46,15 +47,31 @@
       run_once: True
       tags:
         - configuration
+    
+    - name: create pg suffix
+      delegate_to: localhost
+      set_fact: 
+        pg_suffix: "pg{{ 101 | random }}"
+      run_once: True
+      tags:
+        - snapshot
+      
 
     - name: create pg snapshot and replicate to other array
       delegate_to: localhost
       purestorage.flasharray.purefa_pgsnap:
         name: "{{ pg_name }}"
-        suffix: 'pg5'
-        #remote: True
-        #now: True
+        suffix: "{{ pg_suffix }}"
+        remote: True
+        now: True
         <<: *pure_api_info
+      register: snapshot_info
       run_once: True
       tags:
+        - snapshot
+    
+    - debug:
+        msg: "Created Snapshot: {{ pg_name }}.{{ pg_suffix }}"
+      run_once: True
+      tags: 
         - snapshot
