@@ -27,8 +27,9 @@
     - name: ensure protection groups are created
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        pgroup: "{{ pg_name }}"
+        pgroup: "{{ item.volume_name }}-PG"
         <<: *pure_api_info
+      loop: "{{ volumes }}"
       tags:
         - configuration
 
@@ -41,10 +42,12 @@
     - name: add volume(s) to protection group on purefa1 and create target on purefa2
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: "{{ volume_list }}"
-        pgroup: "{{ pg_name }}"
+        volume: 
+          - "{{ item.volume_name }}"
+        pgroup: "{{ item.volume_name }}-PG"
         target: 'purefa2'
         <<: *pure_api_info
+      loop: "{{ volumes }}"
       when: inventory_hostname == 'purefa1'
       tags:
         - configuration
@@ -52,10 +55,12 @@
     - name: add volume(s) to protection group on purefa2
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: "{{ volume_list }}"
-        pgroup: "{{ pg_name }}"
+        volume: 
+          - "{{ item.volume_name }}"
+        pgroup: "{{ item.volume_name }}-PG"
         #target: 'purefa2'
         <<: *pure_api_info
+      loop: "{{ volumes }}"
       when: inventory_hostname == 'purefa2'
       tags:
         - configuration
@@ -63,7 +68,7 @@
     - name: create pg suffix
       delegate_to: localhost
       set_fact: 
-        pg_suffix: "pg{{ 101 | random }}"
+        pg_suffix: "SNAP{{ 101 | random }}"
       run_once: True
       tags:
         - snapshot
@@ -72,19 +77,18 @@
     - name: create pg snapshot and replicate to other array
       delegate_to: localhost
       purestorage.flasharray.purefa_pgsnap:
-        name: "{{ pg_name }}"
+        name: "{{ pg_name | default(default_pg_name) }}"
         suffix: "{{ pg_suffix }}"
         remote: True
         now: True
         <<: *pure_api_info
-      register: snapshot_info
       run_once: True
       tags:
         - snapshot
     
     - name: print name of created snapshot
       debug:
-        msg: "Created Snapshot: {{ pg_name }}.{{ pg_suffix }}"
+        msg: "Created Snapshot: {{ pg_name | default(default_pg_name) }}.{{ pg_suffix }}"
       run_once: True
       tags: 
         - snapshot
@@ -99,9 +103,9 @@
     - name: copy snapshot to target volume
       delegate_to: localhost
       purestorage.flasharray.purefa_pgsnap:
-        name: "purefa1:{{ pg_name }}"
+        name: "purefa1:{{ pg_name | default(default_pg_name) }}"
         suffix: "{{ pg_suffix }}"
-        restore: "{{ target_volume | default('sqlserver2019-db1') }}"
+        restore: "{{ target_volume | default(default_target_volume) }}"
         #restore: sqlserver2019-db1
         overwrite: True
         state: copy
