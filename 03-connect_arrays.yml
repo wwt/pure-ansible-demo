@@ -6,11 +6,12 @@
     - name: populate API keys for each pure module
       set_fact:
         pure_credentials: &pure_api_info
-          fa_url: "{{ inventory_hostname }}"
+          fa_url: "{{ ansible_host }}"
           api_token: "{{ purefa_api_token }}"
       tags:
         - configuration
         - snapshot
+        - test
 
     - name: connect arrays for syncing
       delegate_to: localhost
@@ -37,14 +38,25 @@
       tags:
         - configuration
 
-    - name: add volume(s) to protection group and create target on purefa2
+    - name: add volume(s) to protection group on purefa1 and create target on purefa2
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         volume: "{{ volume_list }}"
         pgroup: "{{ pg_name }}"
         target: 'purefa2'
         <<: *pure_api_info
-      run_once: True
+      when: inventory_hostname == 'purefa1'
+      tags:
+        - configuration
+
+    - name: add volume(s) to protection group on purefa2
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: "{{ volume_list }}"
+        pgroup: "{{ pg_name }}"
+        #target: 'purefa2'
+        <<: *pure_api_info
+      when: inventory_hostname == 'purefa2'
       tags:
         - configuration
     
@@ -70,8 +82,33 @@
       tags:
         - snapshot
     
-    - debug:
+    - name: print name of created snapshot
+      debug:
         msg: "Created Snapshot: {{ pg_name }}.{{ pg_suffix }}"
       run_once: True
       tags: 
         - snapshot
+
+    - name: pause to let replication occur
+      pause:
+        seconds: 20
+      run_once: True
+      tags:
+        - snapshot
+
+    - name: copy snapshot to target volume
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pgsnap:
+        name: "purefa1:{{ pg_name }}"
+        suffix: "{{ pg_suffix }}"
+        restore: "{{ target_volume | default('sqlserver2019-db1') }}"
+        #restore: sqlserver2019-db1
+        overwrite: True
+        state: copy
+        <<: *pure_api_info
+      when: inventory_hostname == 'purefa2'
+      tags:
+        - snapshot
+        - test
+      
+
