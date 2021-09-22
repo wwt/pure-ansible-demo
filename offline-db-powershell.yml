@@ -1,0 +1,9 @@
+---
+- name: offline database in MSSQL
+  hosts: eqx-sqlserver
+  gather_facts: False
+  tasks:
+    - name: offline database in equinix
+      ansible.windows.win_powershell:
+        script: |
+          echo "Hello World"
