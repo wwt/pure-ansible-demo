@@ -1,9 +1,9 @@
 ---
 default_pg_name: sqlserver2019-db1-PG
 default_target_volume: sqlserver2019-db1
+default_db: db1
 
-
-volumes:
+volumes_old:
   - volume_name: sqlserver2019-db1
     volume_size: 200G
   - volume_name: sqlserver2019-db2
@@ -15,7 +15,7 @@ volumes:
   - volume_name: sqlserver2019-db5
     volume_size: 2T
 
-vol_by_friendly:
+volumes:
   db1:
     volume_name: sqlserver2019-db1
     volume_size: 200G
