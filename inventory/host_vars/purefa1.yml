@@ -1,7 +1,2 @@
 ---
 purefa_api_token: 125cfec6-560a-ca26-e7af-27be411d3959
-volumes:
-  - volume_name: sqlserver2019-db1
-    volume_size: 1T
-  - volume_name: sqlserver2019-db2
-    volume_size: 1T

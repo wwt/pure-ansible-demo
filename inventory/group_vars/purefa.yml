@@ -1,2 +1,33 @@
 ---
-pg_name: save-sqlserver2019
+default_pg_name: sqlserver2019-db1-PG
+default_target_volume: sqlserver2019-db1
+
+
+volumes:
+  - volume_name: sqlserver2019-db1
+    volume_size: 200G
+  - volume_name: sqlserver2019-db2
+    volume_size: 200G
+  - volume_name: sqlserver2019-db3
+    volume_size: 200G
+  - volume_name: sqlserver2019-db4
+    volume_size: 200G
+  - volume_name: sqlserver2019-db5
+    volume_size: 2T
+
+vol_by_friendly:
+  db1:
+    volume_name: sqlserver2019-db1
+    volume_size: 200G
+  db2:
+    volume_name: sqlserver2019-db2
+    volume_size: 200G
+  db3:
+    volume_name: sqlserver2019-db3
+    volume_size: 200G
+  db4:
+    volume_name: sqlserver2019-db4
+    volume_size: 200G
+  db5:
+    volume_name: sqlserver2019-db5
+    volume_size: 2T
