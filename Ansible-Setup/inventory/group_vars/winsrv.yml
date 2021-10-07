@@ -1,0 +1,9 @@
+---
+ansible_user: administrator
+ansible_password: "WWTwwt1!"
+ansible_winrm_transport: ntlm
+ansible_connection: winrm
+ansible_port: 5985
+ansible_winrm_server_cert_validation: ignore
+
+win_drive_letter: Q
