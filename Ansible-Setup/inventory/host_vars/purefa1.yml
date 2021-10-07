@@ -1,10 +1,2 @@
 ---
 purefa_api_token: 125cfec6-560a-ca26-e7af-27be411d3959
-
-purefa_win_hosts_iscsi:
-  winsrv01:
-    iqn: iqn.1991-05.com.microsoft:winsrv01.lab.local
-
-purefa_winsrv_host_group:
-  winsrv01:
-    - winsrv01

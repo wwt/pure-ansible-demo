@@ -6,4 +6,4 @@ ansible_connection: winrm
 ansible_port: 5985
 ansible_winrm_server_cert_validation: ignore
 
-win_drive_letter: Q
+win_drive_letter: M
