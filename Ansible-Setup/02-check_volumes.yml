@@ -1,0 +1,18 @@
+---
+- name: check pure storage volume capacity
+  hosts: purefa
+  gather_facts: False
+  tasks:
+    - name: check volume
+      delegate_to: localhost
+      purestorage.flasharray.purefa_info:
+        gather_subset:
+          - volumes
+        fa_url: "{{ inventory_hostname }}"
+        api_token: "{{ purefa_api_token }}"
+      register: array_info
+    - name: show default information
+      debug:
+        msg: "{{ array_info['purefa_info'] }}"
+
+  
