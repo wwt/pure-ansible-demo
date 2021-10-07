@@ -1,0 +1,222 @@
+---
+- name: setup pure arrays for connecting to windows machines via iSCSI
+  hosts: purefa
+  gather_facts: false
+
+  tasks:
+    - name: populate API keys for each pure module
+      set_fact:
+        pure_credentials: &pure_api_info
+          fa_url: "{{ ansible_host }}"
+          api_token: "{{ purefa_api_token }}"
+      tags:
+        - test-vars
+
+    - name: set fact for which database to restore
+      # there are 5 databases that can be referenced by db1, db2, db3, db4, or db5
+      set_fact:
+        db_choice: "{{ db_choice | default(default_db) }}"
+      tags:
+        - test-vars
+        - test-facts
+
+    - name: set fact for which volume to mount to windows
+      set_fact:
+        win_volume_name: "{{ item.value.volume_name }}"
+      when: item.key == db_choice
+      loop: "{{ volumes | dict2items }}"
+      tags:
+        - test-vars
+        - test-facts
+  
+    - name: configure winsrv hosts on arrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_host:
+        <<: *pure_api_info
+        host: "{{ item.key }}"
+        iqn: "{{ item.value.iqn }}"
+        personality: "{{ item.value.personality | default(omit) }}"
+        state: present
+      loop: "{{ purefa_win_hosts_iscsi | default({}) | dict2items }}"
+      #when: inventory_hostname == 'purefa1'
+      tags: test-vars
+
+    #- name: configure winsrv02 host on fa2
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_host:
+    #    fa_url: "{{ inventory_hostname }}"
+    #    api_token: "{{ api_token }}"
+    #    host: "{{ item.key }}"
+    #    iqn: "{{ item.value.iqn }}"
+    #    personality: "{{ item.value.personality | default(omit) }}"
+    #    state: present
+    #  loop: "{{ purefa2_win_hosts_iscsi | default({}) | dict2items }}"
+    #  when: inventory_hostname == 'purefa2'
+    #  tags: test-vars
+          
+    - name: Configure Host Groups on arrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_hg:
+        <<: *pure_api_info
+        hostgroup: "{{ item.key }}"
+        host: "{{ item.value }}"
+      loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
+      #when: inventory_hostname == 'purefa1'
+      tags: test-vars
+
+    #- name: Configure Host Group on purefa2
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_hg:
+    #    fa_url: "{{ inventory_hostname }}"
+    #    api_token: "{{ api_token }}"
+    #    hostgroup: "{{ item.key }}"
+    #    host: "{{ item.value }}"
+    #  loop: "{{ purefa2_winsrv_host_group | default({}) | dict2items }}"
+    #  when: inventory_hostname == 'purefa2'
+
+    - name: create volume
+      delegate_to: localhost
+      purestorage.flasharray.purefa_volume:
+        <<: *pure_api_info
+        name: "{{ win_volume_name }}"
+        size: 200G
+        state: present
+      tags: test-vars
+
+    - name: mask volume on purefa1
+      delegate_to: localhost
+      purestorage.flasharray.purefa_hg:
+        <<: *pure_api_info
+        hostgroup: "{{ item.key }}"
+        volume: "{{ win_volume_name }}"
+      loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
+      #when: inventory_hostname == 'purefa1'
+      tags: test-vars
+
+    #- name: mask volume on purefa1
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_hg:
+    #    fa_url: "{{ inventory_hostname }}"
+    #    api_token: "{{ api_token }}"
+    #    hostgroup: "{{ item.key }}"
+    #    volume: "{{ volume_name }}"
+    #  loop: "{{ purefa2_winsrv_host_group | default({}) | dict2items }}"
+    #  when: inventory_hostname == 'purefa2'
+#
+    - name: gather purefa1 volume facts
+      delegate_to: localhost
+      purestorage.flasharray.purefa_info:
+        <<: *pure_api_info
+        gather_subset: volumes
+      register: purefa1_info
+      when: inventory_hostname == 'purefa1'
+
+    - name: Set NAA LUN Serial Variable for purefa1
+      set_fact:
+        purefa1_vol_serial: "{{ purefa1_info['purefa_info']['volumes'][win_volume_name]['serial'] | upper }}"
+      when: inventory_hostname == 'purefa1'
+
+    - name: gather purefa2 volume facts
+      delegate_to: localhost
+      purestorage.flasharray.purefa_info:
+        <<: *pure_api_info
+        gather_subset: volumes
+      register: purefa2_info
+      when: inventory_hostname == 'purefa2'
+
+    - name: Set NAA LUN Serial Variable for purefa2
+      set_fact:
+        purefa2_vol_serial: "{{ purefa2_info['purefa_info']['volumes'][win_volume_name]['serial'] | upper }}"
+      when: inventory_hostname == 'purefa2'
+
+- name: setup windows disks and volumes
+  hosts: winsrv
+  gather_facts: false
+
+  tasks:
+    - name: set purefa1 volume serial number
+      set_fact:
+        purefa1_vol_serial: "{{ hostvars['purefa1']['purefa1_vol_serial'] }}"
+      run_once: True
+
+    - name: set purefa2 volume serial number
+      set_fact:
+        purefa2_vol_serial: "{{ hostvars['purefa2']['purefa2_vol_serial'] }}"
+      run_once: True
+
+    - name: Restart Windows iSCSI Service
+      win_service:
+        name: MSiSCSI
+        state: restarted
+
+    - name: Connect to iscsi Targets
+      win_shell: !unsafe |
+        Get-IscsiTargetPortal | Update-IscsiTargetPortal
+        get-iscsitarget | ?{$_.IsConnected -eq $false}| Connect-IscsiTarget
+      # when: inventory_hostname == 'winsrv02.lab.local'
+    
+    - name: Configure winsrv01 disks
+      block:
+      - name: Gather Facts
+        win_disk_facts:
+
+      - name: Query for Individual Purefa1 Disk
+        set_fact:
+          pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
+        vars:
+          query: "[?physical_disk.serial_number=='{{purefa1_vol_serial}}']"
+  
+      - name: Initialize Windows Disk
+        #when: pure_disk_info.operational_status == 'Offline'
+        win_shell:
+          initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
+            
+      - name: Create Partition
+        #run_once: true
+        win_partition:
+          disk_number: "{{ pure_disk_info.number }}"
+          drive_letter: "{{ win_drive_letter }}"
+          partition_size: -1
+          partition_number: 1
+
+      - name: Format Disk
+        #run_once: true
+        win_format:
+          drive_letter: "{{ win_drive_letter }}"
+          file_system: NTFS
+          new_label: formatted
+
+      when: inventory_hostname == 'winsrv01.lab.local'
+
+    - name: configure winsrv02 disks
+      block:
+      - name: Gather Facts
+        win_disk_facts:
+
+      - name: Query for Individual Purefa2 Disk
+        set_fact:
+          pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
+        vars:
+          query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
+
+      - name: Initialize Windows Disk
+        when: pure_disk_info.operational_status == 'Offline'
+        win_shell:
+          initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
+              
+      - name: Create Partition
+        #run_once: true
+        win_partition:
+          disk_number: "{{ pure_disk_info.number }}"
+          drive_letter: "{{ win_drive_letter }}"
+          partition_size: -1
+          partition_number: 1
+
+      - name: Format Disk
+        #run_once: true
+        win_format:
+          drive_letter: "{{ win_drive_letter }}"
+          file_system: NTFS
+          new_label: formatted
+
+      when: inventory_hostname == 'winsrv02.lab.local'
