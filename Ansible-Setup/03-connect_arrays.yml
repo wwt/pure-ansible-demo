@@ -39,20 +39,22 @@
       tags:
         - configuration
 
-    - name: add volume(s) to protection group on purefa1 and create target on purefa2
+    - name: configure protection group to have a target array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         volume: 
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         target: 'purefa2'
+        state: present
+        eradicate: True
         <<: *pure_api_info
-      when: inventory_hostname == 'purefa1'
+      when: inventory_hostname == source_array
       loop: "{{ volumes | dict2items }}"
       tags:
-        - configuration
+        - replication
 
-    - name: add volume(s) to protection group on purefa2
+    - name: add volume(s) to protection group on target_array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         volume: 
@@ -61,7 +63,7 @@
         #target: 'purefa2'
         <<: *pure_api_info
       loop: "{{ volumes | dict2items }}"
-      when: inventory_hostname == 'purefa2'
+      when: inventory_hostname == target_array
       tags:
         - configuration
 
