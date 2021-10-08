@@ -1,0 +1,5 @@
+    - name: include pause role
+      include_role:
+        name: pause
+      vars:
+        seconds: 40
