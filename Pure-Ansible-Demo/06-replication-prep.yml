@@ -1,0 +1,43 @@
+---
+- name: create replication
+  hosts: purefa
+  gather_facts: False
+  tasks:
+    - name: populate API keys for each pure module
+      set_fact:
+        pure_credentials: &pure_api_info
+          fa_url: "{{ ansible_host }}"
+          api_token: "{{ purefa_api_token }}"
+
+    - name: connect arrays for syncing
+      delegate_to: localhost
+      purestorage.flasharray.purefa_connect:
+        target_url: "{{ hostvars[target_array]['ansible_host'] }}"
+        target_api: "{{ hostvars[target_array]['purefa_api_token'] }}"
+        connection: async
+        <<: *pure_api_info
+      run_once: True
+
+    - name: configure protection group to have a target array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: 
+          - "{{ item.volume_name }}"
+        pgroup: "{{ item.volume_name }}-PG"
+        target: "{{ target_array }}"
+        state: present
+        eradicate: True
+        <<: *pure_api_info
+      when: inventory_hostname == source_array
+      loop: "{{ volumes }}"
+
+    - name: add volume(s) to protection group on target_array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: 
+          - "{{ item.volume_name }}"
+        pgroup: "{{ item.volume_name }}-PG"
+        #target: 'purefa2'
+        <<: *pure_api_info
+      loop: "{{ volumes }}"
+      when: inventory_hostname == target_array
