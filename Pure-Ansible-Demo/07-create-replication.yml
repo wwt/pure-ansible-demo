@@ -1,0 +1,19 @@
+---
+- name: create replication
+  hosts: purefa
+  gather_facts: False
+  tasks:
+    - name: populate API keys for each pure module
+      set_fact:
+        pure_credentials: &pure_api_info
+          fa_url: "{{ ansible_host }}"
+          api_token: "{{ purefa_api_token }}"
+
+    - name: connect arrays for syncing
+      delegate_to: localhost
+      purestorage.flasharray.purefa_connect:
+        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
+        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
+        connection: async
+        <<: *pure_api_info
+      run_once: True
