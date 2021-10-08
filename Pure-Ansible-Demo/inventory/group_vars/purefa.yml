@@ -3,6 +3,9 @@ default_pg_name: sqlserver2019-db1-PG
 default_target_volume: sqlserver2019-db1
 default_db: db1
 
+source_array: purefa1
+target_array: purefa2
+
 volumes:
   - volume_name: Mongo-db1
     volume_size: 200G

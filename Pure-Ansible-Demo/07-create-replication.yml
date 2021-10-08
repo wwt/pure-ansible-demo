@@ -17,3 +17,18 @@
         connection: async
         <<: *pure_api_info
       run_once: True
+
+    - name: configure protection group to have a target array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: 
+          - "{{ item.value.volume_name }}"
+        pgroup: "{{ item.value.volume_name }}-PG"
+        target: 'purefa2'
+        state: present
+        eradicate: True
+        <<: *pure_api_info
+      when: inventory_hostname == source_array
+      loop: "{{ volumes | dict2items }}"
+      tags:
+        - replication
