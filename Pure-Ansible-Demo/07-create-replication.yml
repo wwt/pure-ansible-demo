@@ -12,8 +12,8 @@
     - name: connect arrays for syncing
       delegate_to: localhost
       purestorage.flasharray.purefa_connect:
-        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
-        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
+        target_url: "{{ hostvars[target_array]['ansible_host'] }}"
+        target_api: "{{ hostvars[target_array]['purefa_api_token'] }}"
         connection: async
         <<: *pure_api_info
       run_once: True
@@ -24,11 +24,68 @@
         volume: 
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
-        target: 'purefa2'
+        target: "{{ target_array }}"
         state: present
         eradicate: True
         <<: *pure_api_info
       when: inventory_hostname == source_array
+      loop: "{{ volumes | dict2items}}"
+
+    - name: add volume(s) to protection group on target_array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pg:
+        volume: 
+          - "{{ item.value.volume_name }}"
+        pgroup: "{{ item.value.volume_name }}-PG"
+        #target: 'purefa2'
+        <<: *pure_api_info
       loop: "{{ volumes | dict2items }}"
-      tags:
-        - replication
+      when: inventory_hostname == target_array
+      
+    - name: set fact for which database to restore
+      # there are 5 databases that can be referenced by db1, db2, db3, db4, or db5
+      set_fact:
+        db_choice: "{{ db_choice | default(default_db) }}"
+
+    - name: create pg suffix
+      delegate_to: localhost
+      set_fact: 
+        pg_suffix: "SNAP{{ 101 | random }}"
+      run_once: True
+
+    - name: create pg snapshot and replicate to other array
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pgsnap:
+        #name: "{{ pg_name | default(default_pg_name) }}"
+        name: "{{ item.value.volume_name }}-PG"
+        suffix: "{{ pg_suffix }}"
+        remote: True
+        now: True
+        <<: *pure_api_info
+      run_once: True
+      when: item.key == db_choice
+      loop: "{{ volumes | dict2items }}"
+
+    - name: print name of created snapshot
+      debug:
+        msg: "Created Snapshot: {{ item.value.volume_name }}-PG.{{ pg_suffix }}"
+      when: item.key == db_choice
+      loop: "{{ volumes | dict2items }}"
+
+    - name: pause to let replication occur
+      pause:
+        seconds: 20
+      run_once: True
+
+    - name: copy snapshot to target volume
+      delegate_to: localhost
+      purestorage.flasharray.purefa_pgsnap:
+        name: "purefa1:{{ item.value.volume_name }}-PG"
+        suffix: "{{ pg_suffix }}"
+        restore: "{{ item.value.volume_name }}"
+        #restore: sqlserver2019-db1
+        overwrite: True
+        state: copy
+        <<: *pure_api_info
+      when: inventory_hostname == target_array and item.key == db_choice
+      loop: "{{ volumes | dict2items }}"
