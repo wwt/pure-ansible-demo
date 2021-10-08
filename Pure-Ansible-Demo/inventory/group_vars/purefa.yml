@@ -14,5 +14,5 @@ volumes:
     volume_size: 200G
   - volume_name: Mongo-db5
     volume_size: 2T
-  - volume_name: Replication_Demo
+  - volume_name: Replication-Demo
     volume_size: 100G
