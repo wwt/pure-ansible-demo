@@ -144,6 +144,18 @@
         purefa2_vol_serial: "{{ hostvars['purefa2']['purefa2_vol_serial'] }}"
       run_once: True
 
+    - name: remove iscsi target
+      win_shell: !unsafe |
+        Remove-IscsiTargetPortal -TargetPortalAddress "{{ item }}" -Confirm:$false -ErrorAction:SilentlyContinue
+      ignore_errors: True
+      when: inventory_hostname == 'winsrv02.lab.local'
+      loop: "{{ hostvars['winsrv01.lab.local']['iscsi_target'] }}"
+      
+    - name: set iscsi target portal
+      win_shell: !unsafe |
+        New-IscsiTargetPortal -TargetPortalAddress "{{ item }}"
+      loop: "{{ iscsi_target }}"
+
     - name: Restart Windows iSCSI Service
       win_service:
         name: MSiSCSI

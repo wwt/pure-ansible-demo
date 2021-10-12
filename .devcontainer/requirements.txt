@@ -3,3 +3,4 @@ ansible-lint
 purestorage 
 py-pure-client
 pywinrm
+jmespath
