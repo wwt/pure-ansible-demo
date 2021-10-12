@@ -23,5 +23,5 @@ volumes:
     volume_name: Mongo-db5
     volume_size: 2T
   db6:
-    volume_name: Replication_Demo
+    volume_name: Replication-Demo
     volume_size: 100G
