@@ -1,0 +1,3 @@
+- name: set state of windows disk
+  win_shell: !unsafe |
+    Set-Disk -Number "{{ pure_disk_info.number }}" -IsOffline $"{{ state }}"

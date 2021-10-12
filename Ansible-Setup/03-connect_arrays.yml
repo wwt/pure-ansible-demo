@@ -81,7 +81,6 @@
       run_once: True
       tags:
         - snapshot
-      
 
     - name: create pg snapshot and replicate to other array
       delegate_to: localhost
