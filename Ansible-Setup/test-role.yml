@@ -15,9 +15,20 @@
       when: item.key == db_choice
       loop: "{{ volumes | dict2items }}"
 
-    - name: include pause role
+    - name: include get disk info
       include_role:
         name: diskinfo
       vars: 
         db_choice: db_choice
-        win_volume_name: win_volume_name
+        vol_name: "{{ win_volume_name }}"
+        state: True
+
+- name: create windows
+  hosts: winsrv02.lab.local
+  gather_facts: False
+  tasks:
+    - name: include windows disk role
+      include_role:
+        name: set-win-disks
+      vars:
+        state: "True"

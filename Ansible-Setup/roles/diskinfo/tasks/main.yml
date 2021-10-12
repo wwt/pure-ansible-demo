@@ -13,7 +13,11 @@
   register: purefa2_info
   when: inventory_hostname == 'purefa2'
 
+- name: debug msg
+  debug:
+    msg: "{{ vol_name }}"
+
 - name: Set NAA LUN Serial Variable for purefa2
   set_fact:
-    purefa2_vol_serial: "{{ purefa2_info['purefa_info']['volumes']['win_volume_name']['serial'] | upper }}"
+    purefa2_vol_serial: "{{ purefa2_info['purefa_info']['volumes'][vol_name]['serial'] | upper }}"
   when: inventory_hostname == 'purefa2'
