@@ -1,0 +1,5 @@
+---
+- name: pause to let replication occur
+  pause:
+    seconds: "{{ seconds | default(20) }}"
+  run_once: True

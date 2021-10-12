@@ -1,0 +1,19 @@
+---
+- name: populate API keys for each pure module
+  set_fact:
+    pure_credentials: &pure_api_info
+      fa_url: "{{ ansible_host }}"
+      api_token: "{{ purefa_api_token }}"
+
+- name: gather purefa2 volume facts
+  delegate_to: localhost
+  purestorage.flasharray.purefa_info:
+    <<: *pure_api_info
+    gather_subset: volumes
+  register: purefa2_info
+  when: inventory_hostname == 'purefa2'
+
+- name: Set NAA LUN Serial Variable for purefa2
+  set_fact:
+    purefa2_vol_serial: "{{ purefa2_info['purefa_info']['volumes']['win_volume_name']['serial'] | upper }}"
+  when: inventory_hostname == 'purefa2'
