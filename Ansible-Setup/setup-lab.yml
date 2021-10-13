@@ -212,7 +212,7 @@
           query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
 
       - name: Initialize Windows Disk
-        when: pure_disk_info.operational_status == 'Offline'
+        #when: pure_disk_info.operational_status == 'Offline'
         win_shell:
           initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
               

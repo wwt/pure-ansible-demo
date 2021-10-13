@@ -10,5 +10,6 @@
         api_token: "{{ purefa_api_token }}"
         name: "{{ item.value.volume_name}}"
         size: "{{ item.value.volume_size }}"
-        state: present
+        state: absent
+        eradicate: True
       loop: "{{ volumes | dict2items }}"

@@ -49,6 +49,10 @@
       vars:
         query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
 
-    - name: offline disk
+    - name: online disk
       win_shell: !unsafe |
         Set-Disk -Number "{{ pure_disk_info.number }}" -IsOffline $False
+        
+    - name: ensure drive letter stays the same
+      win_shell: !unsafe |
+        "GetPartition -DiskNumber {{ pure_disk_info.number }} | Set-Partition -NewDriveLetter M"
