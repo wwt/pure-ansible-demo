@@ -1,0 +1,41 @@
+---
+default_pg_name: sqlserver2019-db1-PG
+default_target_volume: sqlserver2019-db1
+default_db: db1
+
+source_array: purefa1
+target_array: purefa2
+
+volumes:
+  db1:
+    volume_name: Mongo-db1
+    volume_size: 200G
+  db2:
+    volume_name: Mongo-db2
+    volume_size: 200G
+  db3:
+    volume_name: Mongo-db3
+    volume_size: 200G
+  db4:
+    volume_name: Mongo-db4
+    volume_size: 200G
+  db5:
+    volume_name: Mongo-db5
+    volume_size: 2T
+  db6:
+    volume_name: Replication-Demo
+    volume_size: 100G
+
+volumes_old:
+  - volume_name: Mongo-db1
+    volume_size: 200G
+  - volume_name: Mongo-db2
+    volume_size: 200G
+  - volume_name: Mongo-db3
+    volume_size: 200G
+  - volume_name: Mongo-db4
+    volume_size: 200G
+  - volume_name: Mongo-db5
+    volume_size: 2T
+  - volume_name: Replication-Demo
+    volume_size: 100G
