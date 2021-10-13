@@ -1,0 +1,13 @@
+---
+- name: create a new volume
+  hosts: purefa1
+  gather_facts: False
+  tasks:
+    - name: create new volume
+      delegate_to: localhost
+      purestorage.flasharray.purefa_volume:
+        fa_url: purefa1.lab.local
+        api_token: 125cfec6-560a-ca26-e7af-27be411d3959
+        name: I-created-a-volume-with-ansible
+        size: 1T
+        state: present

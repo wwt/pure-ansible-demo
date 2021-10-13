@@ -1,0 +1,13 @@
+---
+- name: create a new banner
+  hosts: purefa1
+  gather_facts: False
+
+  tasks:
+    - name: Set new banner text
+      delegate_to: localhost
+      purestorage.flasharray.purefa_banner:
+        banner: "Ansible did this!"
+        state: present
+        fa_url: purefa1.lab.local
+        api_token: 125cfec6-560a-ca26-e7af-27be411d3959

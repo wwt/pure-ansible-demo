@@ -1,10 +1,12 @@
 ---
-default_pg_name: sqlserver2019-db1-PG
-default_target_volume: sqlserver2019-db1
-default_db: db1
+#default_pg_name: sqlserver2019-db1-PG
+#default_target_volume: sqlserver2019-db1
+default_db: db6
 
 source_array: purefa1
 target_array: purefa2
+
+banner_text:  "WWT Pure Automation Lab: \n Managed by Ansible!"
 
 volumes:
   db1:
@@ -26,7 +28,7 @@ volumes:
     volume_name: Replication-Demo
     volume_size: 100G
 
-volumes_old:
+volumes_dict_list:
   - volume_name: Mongo-db1
     volume_size: 200G
   - volume_name: Mongo-db2
