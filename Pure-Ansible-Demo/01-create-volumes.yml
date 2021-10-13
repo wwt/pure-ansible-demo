@@ -10,4 +10,4 @@
         api_token: 125cfec6-560a-ca26-e7af-27be411d3959
         name: I-created-a-volume-with-ansible
         size: 1T
-        state: absent
+        state: present
