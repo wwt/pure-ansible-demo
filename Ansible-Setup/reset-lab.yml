@@ -48,17 +48,17 @@
     #  #when: inventory_hostname == 'purefa1'
     #  tags: test-vars
 #
-    #- name: configure winsrv hosts on arrays
-    #  delegate_to: localhost
-    #  purestorage.flasharray.purefa_host:
-    #    <<: *pure_api_info
-    #    host: "{{ item.key }}"
-    #    iqn: "{{ item.value.iqn }}"
-    #    personality: "{{ item.value.personality | default(omit) }}"
-    #    state: absent
-    #  loop: "{{ purefa_win_hosts_iscsi | default({}) | dict2items }}"
-    #  #when: inventory_hostname == 'purefa1'
-    #  tags: test-vars
+    - name: remove winsrv hosts on arrays
+      delegate_to: localhost
+      purestorage.flasharray.purefa_host:
+        <<: *pure_api_info
+        host: "{{ item.key }}"
+        iqn: "{{ item.value.iqn }}"
+        personality: "{{ item.value.personality | default(omit) }}"
+        state: absent
+      loop: "{{ purefa_win_hosts_iscsi | default({}) | dict2items }}"
+      #when: inventory_hostname == 'purefa1'
+      tags: test-vars
 
     #- name: configure winsrv02 host on fa2
     #  delegate_to: localhost
@@ -99,8 +99,8 @@
       purestorage.flasharray.purefa_hg:
         <<: *pure_api_info
         hostgroup: "{{ item.key }}"
-        volume: "{{ win_volume_name }}"
-        host: "{{ item.key }}"
+        #volume: "{{ win_volume_name }}"
+        #host: "{{ item.key }}"
         state: absent
       loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
       #when: inventory_hostname == 'purefa1'

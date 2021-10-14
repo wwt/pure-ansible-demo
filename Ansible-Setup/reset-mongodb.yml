@@ -13,3 +13,8 @@
       args:
         chdir: C:\
         stdin: C:\python\python mongo-delete.py
+
+    - name: stop mongodb service
+      ansible.windows.win_service:
+        name: MongoDB
+        state: stopped

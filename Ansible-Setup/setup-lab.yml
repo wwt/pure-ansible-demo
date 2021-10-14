@@ -232,3 +232,8 @@
           new_label: formatted
 
       when: inventory_hostname == 'winsrv02.lab.local'
+
+    - name: start mongodb service
+      ansible.windows.win_service:
+        name: MongoDB
+        state: started
