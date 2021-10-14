@@ -3,7 +3,8 @@
   hosts: purefa
   gather_facts: False
   tasks:
-    include_roles:
-      name: pause
-    vars:
-      seconds: 10
+    - name: pause
+      include_role:
+        name: pause
+      vars:
+        seconds: 10

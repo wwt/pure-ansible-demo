@@ -8,6 +8,7 @@
         pure_credentials: &pure_api_info
           fa_url: "{{ ansible_host }}"
           api_token: "{{ purefa_api_token }}"
+      tags: info
       
     - name: set fact for which database to restore
       # there are 5 databases that can be referenced by db1, db2, db3, db4, or db5
@@ -55,3 +56,11 @@
         <<: *pure_api_info
       when: inventory_hostname == target_array and item.key == db_choice
       loop: "{{ volumes | dict2items }}"
+
+    - name: get volume snap info
+      delegate_to: localhost
+      purestorage.flasharray.purefa_info:
+        gather_subset:
+          - volumes
+        <<: *pure_api_info
+      tags: info
