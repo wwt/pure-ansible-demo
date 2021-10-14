@@ -29,6 +29,6 @@
   tasks:
     - name: include windows disk role
       include_role:
-        name: set-win-disks
+        name: set_win_disks
       vars:
         state: "True"

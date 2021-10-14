@@ -29,12 +29,12 @@
   tasks:
     - name: set winsrv02 disk to offline
       include_role:
-        name: set-win-disks
+        name: set_win_disks
       vars:
         state: "True"
 
     - name: set winsrv02 disk to online
       include_role:
-        name: set-win-disks
+        name: set_win_disks
       vars:
         state: "False"
