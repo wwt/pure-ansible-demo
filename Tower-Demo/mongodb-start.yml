@@ -1,0 +1,8 @@
+- name: stop services on windows
+  gather_facts: false
+  hosts: winsrv02.lab.local
+  tasks:
+    - name: stop mongodb service
+      ansible.windows.win_service:
+        name: MongoDB
+        state: started
