@@ -11,6 +11,8 @@
           api_token: "{{ purefa_api_token }}"
       tags:
         - test-vars
+        - banner
+        - remove-hg
 
     - name: set fact for which database to restore
       # there are 5 databases that can be referenced by db1, db2, db3, db4, or db5
@@ -19,36 +21,44 @@
       tags:
         - test-vars
         - test-facts
+        - remove-hg
 
     - name: set fact for which volume to mount to windows
       set_fact:
         win_volume_name: "{{ item.value.volume_name }}"
       when: item.key == db_choice
       loop: "{{ volumes | dict2items }}"
+      tags: remove-hg
 
-
-    - name: Configure Host Groups on arrays
+    - name: remove banner
       delegate_to: localhost
-      purestorage.flasharray.purefa_hg:
-        <<: *pure_api_info
-        hostgroup: "{{ item.key }}"
-        host: "{{ item.value }}"
+      purestorage.flasharray.purefa_banner:
         state: absent
-      loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
-      #when: inventory_hostname == 'purefa1'
-      tags: test-vars
+        <<: *pure_api_info
 
-    - name: configure winsrv hosts on arrays
-      delegate_to: localhost
-      purestorage.flasharray.purefa_host:
-        <<: *pure_api_info
-        host: "{{ item.key }}"
-        iqn: "{{ item.value.iqn }}"
-        personality: "{{ item.value.personality | default(omit) }}"
-        state: absent
-      loop: "{{ purefa_win_hosts_iscsi | default({}) | dict2items }}"
-      #when: inventory_hostname == 'purefa1'
-      tags: test-vars
+
+    #- name: Configure Host Groups on arrays
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_hg:
+    #    <<: *pure_api_info
+    #    hostgroup: "{{ item.key }}"
+    #    host: "{{ item.value }}"
+    #    state: absent
+    #  loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
+    #  #when: inventory_hostname == 'purefa1'
+    #  tags: test-vars
+#
+    #- name: configure winsrv hosts on arrays
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_host:
+    #    <<: *pure_api_info
+    #    host: "{{ item.key }}"
+    #    iqn: "{{ item.value.iqn }}"
+    #    personality: "{{ item.value.personality | default(omit) }}"
+    #    state: absent
+    #  loop: "{{ purefa_win_hosts_iscsi | default({}) | dict2items }}"
+    #  #when: inventory_hostname == 'purefa1'
+    #  tags: test-vars
 
     #- name: configure winsrv02 host on fa2
     #  delegate_to: localhost
@@ -75,25 +85,26 @@
     #  loop: "{{ purefa2_winsrv_host_group | default({}) | dict2items }}"
     #  when: inventory_hostname == 'purefa2'
 
-    - name: create volume
-      delegate_to: localhost
-      purestorage.flasharray.purefa_volume:
-        <<: *pure_api_info
-        name: "{{ win_volume_name }}"
-        size: 200G
-        state: absent
-      tags: test-vars
+    #- name: create volume
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_volume:
+    #    <<: *pure_api_info
+    #    name: "{{ win_volume_name }}"
+    #    size: 200G
+    #    state: absent
+    #  tags: test-vars
 
-    - name: mask volume on purefa1
+    - name: remove host group
       delegate_to: localhost
       purestorage.flasharray.purefa_hg:
         <<: *pure_api_info
         hostgroup: "{{ item.key }}"
         volume: "{{ win_volume_name }}"
+        host: "{{ item.key }}"
         state: absent
       loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
       #when: inventory_hostname == 'purefa1'
-      tags: test-vars
+      tags: remove-hg
   
     - name: connect arrays for syncing
       delegate_to: localhost
@@ -142,13 +153,22 @@
         - configuration
         - pg
 
-    - name: create new volume(s)
+    - name: remove volumes
       delegate_to: localhost
       purestorage.flasharray.purefa_volume:
-        fa_url: "{{ ansible_host }}"
-        api_token: "{{ purefa_api_token }}"
+        <<: *pure_api_info
         name: "{{ item.value.volume_name}}"
         size: "{{ item.value.volume_size }}"
         eradicate: True
         state: absent
       loop: "{{ volumes | dict2items }}"
+
+    - name: remove volume that was created without dict
+      delegate_to: localhost
+      purestorage.flasharray.purefa_volume:
+        <<: *pure_api_info
+        name: I-created-a-volume-with-ansible
+        size: 1T
+        state: absent
+        eradicate: True
+
