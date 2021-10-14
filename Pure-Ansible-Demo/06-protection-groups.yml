@@ -26,6 +26,7 @@
         pgroup: "{{ item.value.volume_name }}-PG"
         target: "{{ target_array }}"
         state: "{{ item.value.vol_state | default('present') }}"
+        enabled: True
         eradicate: True
         <<: *pure_api_info
       when: inventory_hostname == source_array
