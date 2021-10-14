@@ -1,0 +1,9 @@
+---
+- name: create a new volume
+  hosts: purefa
+  gather_facts: False
+  tasks:
+    include_roles:
+      name: pause
+    vars:
+      seconds: 10
