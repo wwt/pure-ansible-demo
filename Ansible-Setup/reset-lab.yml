@@ -105,16 +105,6 @@
       loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
       #when: inventory_hostname == 'purefa1'
       tags: remove-hg
-  
-    - name: connect arrays for syncing
-      delegate_to: localhost
-      purestorage.flasharray.purefa_connect:
-        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
-        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
-        connection: async
-        state: absent
-        <<: *pure_api_info
-      run_once: True
 
     - name: create list of volumes to add to protection group
       set_fact:
@@ -172,3 +162,12 @@
         state: absent
         eradicate: True
 
+    - name: connect arrays for syncing
+      delegate_to: localhost
+      purestorage.flasharray.purefa_connect:
+        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
+        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
+        connection: async
+        state: absent
+        <<: *pure_api_info
+      run_once: True
