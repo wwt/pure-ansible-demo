@@ -233,7 +233,15 @@
 
       when: inventory_hostname == 'winsrv02.lab.local'
 
+    - name: create mongodb directory
+      ansible.windows.win_shell:
+        md M:\data\db
+      ignore_errors: True
+      tags: mkdir
+      
+
     - name: start mongodb service
       ansible.windows.win_service:
         name: MongoDB
         state: started
+      tags: mkdir
