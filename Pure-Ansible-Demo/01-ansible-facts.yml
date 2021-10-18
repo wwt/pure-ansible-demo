@@ -13,5 +13,4 @@
       register: array_info
     - name: show volume names
       debug:
-        msg: "{{ item.key }}"
-      loop: "{{ array_info['purefa_info']['volumes'] | dict2items }}"
+        msg: "Volume size is: {{ array_info['purefa_info']['volumes']['Replication-Demo']['size'] }}"
