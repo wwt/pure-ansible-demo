@@ -18,18 +18,6 @@
         connection: async
       run_once: True
 
-    - name: add volume(s) to protection group on target_array
-      delegate_to: localhost
-      purestorage.flasharray.purefa_pg:
-        volume: 
-          - "{{ item.value.volume_name }}"
-        pgroup: "{{ item.value.volume_name }}-PG"
-        state: "{{ item.value.vol_state | default('present') }}"
-        eradicate: True
-        <<: *pure_api_info
-      loop: "{{ volumes | dict2items }}"
-      when: inventory_hostname == target_array
-
     - name: configure protection group to have a target array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
@@ -56,3 +44,4 @@
         <<: *pure_api_info
       when: inventory_hostname == source_array
       loop: "{{ volumes | dict2items }}"
+  
