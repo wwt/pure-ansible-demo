@@ -53,6 +53,9 @@
       win_shell: !unsafe |
         Set-Disk -Number "{{ pure_disk_info.number }}" -IsOffline $False
         
-    - name: ensure drive letter stays the same
-      win_shell: !unsafe |
-        "GetPartition -DiskNumber {{ pure_disk_info.number }} | Set-Partition -NewDriveLetter M"
+    - name: Manage Drive Letter for restored volume
+      win_partition:
+        disk_number: "{{ pure_disk_info.number }}"
+        drive_letter: "{{ win_drive_letter }}"
+        partition_size: -1
+        partition_number: 1
