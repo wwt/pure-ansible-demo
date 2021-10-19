@@ -72,8 +72,6 @@
     #  loop: "{{ purefa2_win_hosts_iscsi | default({}) | dict2items }}"
     #  when: inventory_hostname == 'purefa2'
     #  tags: test-vars
-          
-
 
     #- name: Configure Host Group on purefa2
     #  delegate_to: localhost
@@ -105,16 +103,6 @@
       loop: "{{ purefa_winsrv_host_group | default({}) | dict2items }}"
       #when: inventory_hostname == 'purefa1'
       tags: remove-hg
-  
-    - name: connect arrays for syncing
-      delegate_to: localhost
-      purestorage.flasharray.purefa_connect:
-        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
-        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
-        connection: async
-        state: absent
-        <<: *pure_api_info
-      run_once: True
 
     - name: create list of volumes to add to protection group
       set_fact:
@@ -125,7 +113,7 @@
     - name: configure protection group to have a target array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: 
+        volume:
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         target: 'purefa2'
@@ -138,26 +126,26 @@
         - replication
         - pg
 
-    - name: add volume(s) to protection group on target_array
-      delegate_to: localhost
-      purestorage.flasharray.purefa_pg:
-        volume: 
-          - "{{ item.value.volume_name }}"
-        pgroup: "{{ item.value.volume_name }}-PG"
-        eradicate: True
-        <<: *pure_api_info
-        state: absent
-      loop: "{{ volumes | dict2items }}"
-      when: inventory_hostname == target_array
-      tags:
-        - configuration
-        - pg
+    #- name: add volume(s) to protection group on target_array
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_pg:
+    #    volume: 
+    #      - "{{ item.value.volume_name }}"
+    #    pgroup: "{{ item.value.volume_name }}-PG"
+    #    eradicate: True
+    #    <<: *pure_api_info
+    #    state: absent
+    #  loop: "{{ volumes | dict2items }}"
+    #  when: inventory_hostname == target_array
+    #  tags:
+    #    - configuration
+    #    - pg
 
     - name: remove volumes
       delegate_to: localhost
       purestorage.flasharray.purefa_volume:
         <<: *pure_api_info
-        name: "{{ item.value.volume_name}}"
+        name: "{{ item.value.volume_name }}"
         size: "{{ item.value.volume_size }}"
         eradicate: True
         state: absent
@@ -172,3 +160,12 @@
         state: absent
         eradicate: True
 
+    - name: connect arrays for syncing
+      delegate_to: localhost
+      purestorage.flasharray.purefa_connect:
+        target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
+        target_api: "{{ hostvars['purefa2']['purefa_api_token'] }}"
+        connection: async
+        state: absent
+        <<: *pure_api_info
+      run_once: True

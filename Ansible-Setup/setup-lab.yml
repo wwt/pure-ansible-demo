@@ -28,7 +28,7 @@
       tags:
         - test-vars
         - test-facts
-  
+
     - name: configure winsrv hosts on arrays
       delegate_to: localhost
       purestorage.flasharray.purefa_host:
@@ -53,7 +53,7 @@
     #  loop: "{{ purefa2_win_hosts_iscsi | default({}) | dict2items }}"
     #  when: inventory_hostname == 'purefa2'
     #  tags: test-vars
-          
+
     - name: Configure Host Groups on arrays
       delegate_to: localhost
       purestorage.flasharray.purefa_hg:
@@ -150,7 +150,7 @@
       ignore_errors: True
       when: inventory_hostname == 'winsrv02.lab.local'
       loop: "{{ hostvars['winsrv01.lab.local']['iscsi_target'] }}"
-      
+
     - name: set iscsi target portal
       win_shell: !unsafe |
         New-IscsiTargetPortal -TargetPortalAddress "{{ item }}"
@@ -166,7 +166,7 @@
         Get-IscsiTargetPortal | Update-IscsiTargetPortal
         get-iscsitarget | ?{$_.IsConnected -eq $false}| Connect-IscsiTarget
       # when: inventory_hostname == 'winsrv02.lab.local'
-    
+
     - name: Configure winsrv01 disks
       block:
       - name: Gather Facts
@@ -176,13 +176,13 @@
         set_fact:
           pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
         vars:
-          query: "[?physical_disk.serial_number=='{{purefa1_vol_serial}}']"
-  
+          query: "[?physical_disk.serial_number=='{{ purefa1_vol_serial }}']"
+
       - name: Initialize Windows Disk
         #when: pure_disk_info.operational_status == 'Offline'
         win_shell:
           initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
-            
+
       - name: Create Partition
         #run_once: true
         win_partition:
@@ -209,13 +209,13 @@
         set_fact:
           pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
         vars:
-          query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
+          query: "[?physical_disk.serial_number=='{{ purefa2_vol_serial }}']"
 
       - name: Initialize Windows Disk
         #when: pure_disk_info.operational_status == 'Offline'
         win_shell:
           initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
-              
+
       - name: Create Partition
         #run_once: true
         win_partition:
@@ -238,7 +238,6 @@
         md M:\data\db
       ignore_errors: True
       tags: mkdir
-      
 
     - name: start mongodb service
       ansible.windows.win_service:

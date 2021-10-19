@@ -4,7 +4,7 @@
   gather_facts: False
   vars:
     banner_text:  "WWT Pure Automation Lab: \n Managed by Ansible!"
-  
+
   tasks:
     - name: Set new banner text
       delegate_to: localhost

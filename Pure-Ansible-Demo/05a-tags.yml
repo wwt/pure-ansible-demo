@@ -3,16 +3,12 @@
   hosts: purefa
   gather_facts: False
 
-  tasks:
-    - name: populate API keys for each pure module
-      set_fact:
-        pure_credentials: &pure_api_info
-          fa_url: "{{ ansible_host }}"
-          api_token: "{{ purefa_api_token }}"
-        tags:
-          - system
-          - volumes
+  vars:
+    pure_credentials: &pure_api_info
+      fa_url: "{{ ansible_host }}"
+      api_token: "{{ purefa_api_token }}"
 
+  tasks:
     - name: Set new banner text
       delegate_to: localhost
       purestorage.flasharray.purefa_banner:
@@ -28,5 +24,5 @@
         name: "{{ item.value.volume_name }}"
         size: "{{ item.value.volume_size }}"
         state: "{{ item.value.vol_state | default('present') }}"
-      loop: "{{ volumes | dict2items}}"
+      loop: "{{ volumes | dict2items }}"
       tags: volumes
