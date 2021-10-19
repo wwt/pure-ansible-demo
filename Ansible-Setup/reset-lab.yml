@@ -1,4 +1,25 @@
 ---
+- name: reset mongodb
+  hosts: winsrv
+  gather_facts: false
+
+  tasks:
+    - name: install pymongo
+      win_command: powershell.exe -
+      args:
+        stdin: C:\python\python -m pip install pymongo
+
+    - name: run python script to reset mongodb
+      win_command: powershell.exe -
+      args:
+        chdir: C:\
+        stdin: C:\python\python mongo-delete.py
+
+    - name: stop mongodb service
+      ansible.windows.win_service:
+        name: MongoDB
+        state: stopped
+
 - name: setup pure arrays for connecting to windows machines via iSCSI
   hosts: purefa
   gather_facts: false
@@ -104,13 +125,13 @@
       #when: inventory_hostname == 'purefa1'
       tags: remove-hg
 
-    - name: create list of volumes to add to protection group
+    - name: create list of volumes to remove from protection group
       set_fact:
         volume_list: "{{ volumes | map(attribute='volume_name') | list }}"
       tags:
         - configuration
 
-    - name: configure protection group to have a target array
+    - name: remove protection groups
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
         volume:
@@ -160,7 +181,7 @@
         state: absent
         eradicate: True
 
-    - name: connect arrays for syncing
+    - name: unconnect arrays for syncing
       delegate_to: localhost
       purestorage.flasharray.purefa_connect:
         target_url: "{{ hostvars['purefa2']['ansible_host'] }}"
