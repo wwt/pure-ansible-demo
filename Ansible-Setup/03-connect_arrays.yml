@@ -179,7 +179,7 @@
       tags:
         - snapshot
         - test
- 
+
 - name: online disk in winsrv2
   gather_facts: false
   hosts: winsrv02.lab.local
