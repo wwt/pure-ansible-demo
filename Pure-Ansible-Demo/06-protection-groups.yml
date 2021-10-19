@@ -2,15 +2,6 @@
 - name: create replication
   hosts: purefa
   gather_facts: False
-<<<<<<< HEAD
-  tasks:
-    - name: populate API keys for each pure module
-      set_fact:
-        pure_credentials: &pure_api_info
-          fa_url: "{{ ansible_host }}"
-          api_token: "{{ purefa_api_token }}"
-=======
->>>>>>> presentation
 
   vars:
     pure_credentials: &pure_api_info
