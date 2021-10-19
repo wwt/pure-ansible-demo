@@ -47,7 +47,7 @@
       set_fact:
         pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
       vars:
-        query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
+        query: "[?physical_disk.serial_number=='{{ purefa2_vol_serial }}']"
 
     - name: online disk
       win_shell: !unsafe |
