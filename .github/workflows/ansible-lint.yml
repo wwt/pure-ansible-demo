@@ -32,7 +32,7 @@ jobs:
         uses: ansible/ansible-lint-action@master
         with:
           targets: |
-            Pure-Ansible-Demo/*
-            Tower-Demo/*
-            Ansible-Setup/*
+            Pure-Ansible-Demo/*.yml
+            Tower-Demo/*.yml
+            Ansible-Setup/*.yml
 
