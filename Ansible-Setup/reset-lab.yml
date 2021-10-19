@@ -128,20 +128,20 @@
         - replication
         - pg
 
-    - name: add volume(s) to protection group on target_array
-      delegate_to: localhost
-      purestorage.flasharray.purefa_pg:
-        volume: 
-          - "{{ item.value.volume_name }}"
-        pgroup: "{{ item.value.volume_name }}-PG"
-        eradicate: True
-        <<: *pure_api_info
-        state: absent
-      loop: "{{ volumes | dict2items }}"
-      when: inventory_hostname == target_array
-      tags:
-        - configuration
-        - pg
+    #- name: add volume(s) to protection group on target_array
+    #  delegate_to: localhost
+    #  purestorage.flasharray.purefa_pg:
+    #    volume: 
+    #      - "{{ item.value.volume_name }}"
+    #    pgroup: "{{ item.value.volume_name }}-PG"
+    #    eradicate: True
+    #    <<: *pure_api_info
+    #    state: absent
+    #  loop: "{{ volumes | dict2items }}"
+    #  when: inventory_hostname == target_array
+    #  tags:
+    #    - configuration
+    #    - pg
 
     - name: remove volumes
       delegate_to: localhost
