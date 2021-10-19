@@ -182,7 +182,7 @@
         #when: pure_disk_info.operational_status == 'Offline'
         win_shell:
           initialize-disk -Number {{ pure_disk_info.number }} -PartitionStyle {{ partition_style | default('MBR') }}
-      
+
       - name: Create Partition
         #run_once: true
         win_partition:
