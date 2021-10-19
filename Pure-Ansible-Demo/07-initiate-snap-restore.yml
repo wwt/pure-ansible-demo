@@ -14,10 +14,10 @@
       set_fact:
         db_choice: "{{ db_choice | default(default_db) }}"
       run_once: True
-      
+
     - name: create pg suffix
       delegate_to: localhost
-      set_fact: 
+      set_fact:
         pg_suffix: "SNAP{{ 101 | random }}"
       run_once: True
 

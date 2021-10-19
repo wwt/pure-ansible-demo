@@ -43,7 +43,7 @@
     - name: configure protection group to have a target array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: 
+        volume:
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         target: 'purefa2'
@@ -59,7 +59,7 @@
     - name: add volume(s) to protection group on target_array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: 
+        volume:
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         #target: 'purefa2'
@@ -77,10 +77,10 @@
         db_choice: "{{ db_choice | default(default_db) }}"
       tags:
         - snapshot
-    
+
     - name: create pg suffix
       delegate_to: localhost
-      set_fact: 
+      set_fact:
         pg_suffix: "SNAP{{ 101 | random }}"
       run_once: True
       tags:
@@ -100,15 +100,14 @@
       loop: "{{ volumes | dict2items }}"
       tags:
         - snapshot
-    
+
     - name: print name of created snapshot
       debug:
         msg: "Created Snapshot: {{ item.value.volume_name }}-PG.{{ pg_suffix }}"
       when: item.key == db_choice
       loop: "{{ volumes | dict2items }}"
       run_once: True
-
-      tags: 
+      tags:
         - snapshot
 
     - name: pause to let replication occur
@@ -155,7 +154,7 @@
       set_fact:
         pure_disk_info: "{{ (ansible_disks | json_query(query))[0] }}"
       vars:
-        query: "[?physical_disk.serial_number=='{{purefa2_vol_serial}}']"
+        query: "[?physical_disk.serial_number=='{{ purefa2_vol_serial }}']"
 
     - name: offline disk
       win_shell: !unsafe |
@@ -180,7 +179,7 @@
       tags:
         - snapshot
         - test
-      
+ 
 - name: online disk in winsrv2
   gather_facts: false
   hosts: winsrv02.lab.local

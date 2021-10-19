@@ -52,7 +52,7 @@
     - name: online disk
       win_shell: !unsafe |
         Set-Disk -Number "{{ pure_disk_info.number }}" -IsOffline $False
-        
+
     - name: Manage Drive Letter for restored volume
       win_partition:
         disk_number: "{{ pure_disk_info.number }}"

@@ -21,7 +21,7 @@
     - name: configure protection group to have a target array
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: 
+        volume:
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         target: "{{ target_array }}"
@@ -35,7 +35,7 @@
     - name: enable replication
       delegate_to: localhost
       purestorage.flasharray.purefa_pg:
-        volume: 
+        volume:
           - "{{ item.value.volume_name }}"
         pgroup: "{{ item.value.volume_name }}-PG"
         target: "{{ target_array }}"
@@ -44,4 +44,3 @@
         <<: *pure_api_info
       when: inventory_hostname == source_array
       loop: "{{ volumes | dict2items }}"
-  
