@@ -7,8 +7,13 @@ name: Markdown Linting
 # Events which trigger the action
 on:
   push:
+    branches:
+      - main
+      - presentation
   pull_request:
-  workflow_dispatch:
+    branches:
+      - main
+      - presentation
 
 jobs:
   ansiblelint:
