@@ -38,7 +38,7 @@
         msg: "Created Snapshot: {{ item.value.volume_name }}-PG.{{ pg_suffix }}"
       when: item.key == db_choice
       loop: "{{ volumes | dict2items }}"
-      run_once:
+      run_once: True
 
     - name: pause to let replication occur
       pause:
