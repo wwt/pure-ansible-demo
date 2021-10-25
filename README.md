@@ -10,3 +10,23 @@ This lab environment is available at [wwt.com](https://wwt.com). There are many 
 - [Pure Ansible Automation](https://www.wwt.com/lab/pure-ansible-automation-lab)
 - [Cisco Ansible Automation](https://www.wwt.com/lab/cisco-ansible-automation-training-lab)
 - [F5 Ansible Automation](https://www.wwt.com/lab/f5-ansible-automation-training-lab)
+
+## Initial Setup
+Install dependencies via pip and Ansible Galaxy.
+In the dependencies directory, you will find a requirements.txt file and a requirements.yml file. To install ansible and other python dependencies type:
+
+```bash
+pip install -r dependencies/requirements.txt
+```
+
+Once Ansible and the other dependencies are installed, we need to install the Ansible collections. Type the following command:
+
+```bash
+ansible-galaxy install -r dependencies/requirements.yml
+```
+
+The Pure Ansible Demo starts with windows hosts connected to each array via iSCSI. To get to this state, we need to run the setup playbook
+```bash
+cd Ansible-Setup
+ansible-playbook setup-lab.yml
+```
