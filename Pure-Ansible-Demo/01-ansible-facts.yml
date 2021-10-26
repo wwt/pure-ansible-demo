@@ -10,7 +10,3 @@
           - volumes
         fa_url: purefa1.lab.local
         api_token: 125cfec6-560a-ca26-e7af-27be411d3959
-      register: array_info
-    - name: show volume names
-      debug:
-        msg: "Volume size is: {{ array_info['purefa_info']['volumes']['Replication-Demo']['size'] }}"

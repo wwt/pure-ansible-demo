@@ -51,7 +51,6 @@
         name: "purefa1:{{ item.value.volume_name }}-PG"
         suffix: "{{ pg_suffix }}"
         restore: "{{ item.value.volume_name }}"
-        #restore: sqlserver2019-db1
         overwrite: True
         state: copy
         <<: *pure_api_info

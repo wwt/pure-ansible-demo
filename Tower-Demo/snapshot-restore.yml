@@ -19,7 +19,6 @@
     - name: create pg snapshot and replicate to other array
       delegate_to: localhost
       purestorage.flasharray.purefa_pgsnap:
-        #name: "{{ pg_name | default(default_pg_name) }}"
         name: "{{ item.value.volume_name }}-PG"
         suffix: "{{ pg_suffix }}"
         remote: True
